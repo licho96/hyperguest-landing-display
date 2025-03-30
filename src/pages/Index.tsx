@@ -81,7 +81,7 @@ const Index = () => {
                     
                     <div className="bg-black/50 p-4 rounded-md font-mono text-sm text-foreground/90 overflow-x-auto">
                       <pre><code className="text-green-400">$ curl -X GET "https://api.hyperguest.com/v1/properties" \</code></pre>
-                      <pre><code className="text-green-400">  -H "Authorization: Bearer {API_KEY}" \</code></pre>
+                      <pre><code className="text-green-400">  -H "Authorization: Bearer YOUR_API_KEY" \</code></pre>
                       <pre><code className="text-green-400">  -H "Content-Type: application/json"</code></pre>
                       <pre><code className="text-primary">{`
 {
