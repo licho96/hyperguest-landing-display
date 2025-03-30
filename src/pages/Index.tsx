@@ -17,6 +17,7 @@ import {
   Lightbulb
 } from "lucide-react";
 import InteractiveBackground from "@/components/InteractiveBackground";
+import ConnectivityMap from "@/components/ConnectivityMap";
 
 const Index = () => {
   const [isVisible, setIsVisible] = useState({
@@ -77,55 +78,8 @@ const Index = () => {
               </div>
               
               <div className="w-full lg:w-1/2">
-                <div className="relative">
-                  <div className="bg-secondary/30 backdrop-blur-sm border border-white/10 shadow-xl rounded-lg overflow-hidden p-6 animate-float">
-                    <div className="absolute -right-8 -top-8 w-36 h-36 bg-primary/30 rounded-full filter blur-3xl"></div>
-                    <div className="absolute -left-8 -bottom-8 w-36 h-36 bg-[#00b9c1]/30 rounded-full filter blur-3xl"></div>
-                    
-                    <div className="relative z-10">
-                      <div className="flex items-center mb-4">
-                        <div className="h-3 w-3 rounded-full bg-red-500 mr-2"></div>
-                        <div className="h-3 w-3 rounded-full bg-yellow-500 mr-2"></div>
-                        <div className="h-3 w-3 rounded-full bg-green-500"></div>
-                        <div className="ml-4 text-xs text-muted-foreground">Hyperguest ARI API Terminal</div>
-                      </div>
-                      
-                      <div className="bg-black/50 p-4 rounded-md font-mono text-sm text-foreground/90 overflow-x-auto">
-                        <pre><code className="text-green-400">$ curl -X GET "https://api.hyperguest.com/v1/properties" \</code></pre>
-                        <pre><code className="text-green-400">  -H "Authorization: Bearer YOUR_API_KEY" \</code></pre>
-                        <pre><code className="text-green-400">  -H "Content-Type: application/json"</code></pre>
-                        <pre><code className="text-primary">{`
-{
-  "data": [
-    {
-      "id": "prop_123456",
-      "name": "Ocean Breeze Resort",
-      "type": "hotel",
-      "rooms_available": 15,
-      "rate_plans": [
-        {
-          "id": "rp_789",
-          "name": "Standard",
-          "price": {
-            "amount": 189.99,
-            "currency": "USD"
-          }
-        }
-      ],
-      "channel_managers": ["cm_456", "cm_789"],
-      "last_updated": "2023-05-15T10:23:45Z"
-    },
-    ...
-  ],
-  "meta": {
-    "total": 245,
-    "page": 1,
-    "per_page": 10
-  }
-}`}</code></pre>
-                      </div>
-                    </div>
-                  </div>
+                <div className="relative h-96">
+                  <ConnectivityMap />
                 </div>
               </div>
             </div>

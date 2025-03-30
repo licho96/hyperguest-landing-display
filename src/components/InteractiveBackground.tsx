@@ -28,11 +28,11 @@ const InteractiveBackground = ({ children }: InteractiveBackgroundProps) => {
 
   return (
     <div ref={containerRef} className="relative w-full min-h-screen overflow-hidden">
-      {/* Dynamic background gradient that follows cursor */}
+      {/* Enhanced dynamic background gradient that follows cursor */}
       <div
-        className="absolute inset-0 bg-primary/5 transition-transform duration-500 ease-out pointer-events-none"
+        className="absolute inset-0 bg-primary/5 transition-all duration-300 ease-out pointer-events-none"
         style={{
-          backgroundImage: `radial-gradient(circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(0, 212, 164, 0.2) 0%, rgba(0, 185, 193, 0.05) 50%, rgba(0, 0, 0, 0) 80%)`,
+          backgroundImage: `radial-gradient(circle 800px at ${mousePosition.x}px ${mousePosition.y}px, rgba(0, 212, 164, 0.15) 0%, rgba(0, 185, 193, 0.08) 40%, rgba(0, 0, 0, 0) 80%)`,
         }}
       />
       
@@ -57,6 +57,17 @@ const InteractiveBackground = ({ children }: InteractiveBackgroundProps) => {
           bottom: `calc(10% - ${mousePosition.y * 0.01}px)`,
           left: `calc(10% - ${mousePosition.x * 0.01}px)`,
           transition: "all 1s ease-out",
+        }}
+      />
+      
+      {/* Cursor spotlight effect */}
+      <div 
+        className="absolute w-[300px] h-[300px] rounded-full pointer-events-none z-0"
+        style={{
+          background: `radial-gradient(circle, rgba(0, 212, 164, 0.2) 0%, rgba(0, 212, 164, 0.0) 70%)`,
+          transform: `translate(${mousePosition.x - 150}px, ${mousePosition.y - 150}px)`,
+          transition: "transform 0.1s ease-out",
+          opacity: 0.8,
         }}
       />
       
