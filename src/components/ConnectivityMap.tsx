@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 
 const ConnectivityMap = () => {
@@ -90,61 +91,149 @@ const ConnectivityMap = () => {
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
+      // Create dark gradient background
+      const bgGradient = ctx.createRadialGradient(
+        canvas.width / 2, canvas.height / 2, 0,
+        canvas.width / 2, canvas.height / 2, canvas.width / 2
+      );
+      bgGradient.addColorStop(0, 'rgba(13, 18, 30, 0.3)');
+      bgGradient.addColorStop(1, 'rgba(9, 14, 24, 0.8)');
+      ctx.fillStyle = bgGradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw grid pattern
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx.lineWidth = 1;
+      
+      const gridSize = 30;
+      for (let x = 0; x < canvas.width; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      
+      for (let y = 0; y < canvas.height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+      
       // Draw connections
       connections.forEach(conn => {
         const fromNode = nodes.find(n => n.id === conn.from);
         const toNode = nodes.find(n => n.id === conn.to);
         
         if (fromNode && toNode) {
+          const gradient = ctx.createLinearGradient(
+            fromNode.x, fromNode.y, 
+            toNode.x, toNode.y
+          );
+          
+          gradient.addColorStop(0, fromNode.color);
+          gradient.addColorStop(1, toNode.color);
+          
+          // Draw glowing connection line
           ctx.beginPath();
           ctx.moveTo(fromNode.x, fromNode.y);
           ctx.lineTo(toNode.x, toNode.y);
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-          ctx.lineWidth = 1;
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+          ctx.lineWidth = 6;
+          ctx.stroke();
+          
+          ctx.beginPath();
+          ctx.moveTo(fromNode.x, fromNode.y);
+          ctx.lineTo(toNode.x, toNode.y);
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth = 1.5;
           ctx.stroke();
         }
       });
       
-      // Draw nodes
+      // Draw nodes with glowing effect
       nodes.forEach(node => {
         ctx.beginPath();
         
         // Different sizes for different node types
-        let nodeRadius = 8;
-        if (node.type === 'central') nodeRadius = 20;
+        let nodeRadius = 6;
+        if (node.type === 'central') nodeRadius = 16;
         
-        ctx.arc(node.x, node.y, nodeRadius, 0, Math.PI * 2);
-        
-        // Create gradient for nodes
-        const gradient = ctx.createRadialGradient(
+        // Draw node glow
+        const glowGradient = ctx.createRadialGradient(
           node.x, node.y, 0,
-          node.x, node.y, nodeRadius * 2
+          node.x, node.y, nodeRadius * 3
         );
         
-        gradient.addColorStop(0, node.color);
-        gradient.addColorStop(1, 'rgba(0,0,0,0)');
+        glowGradient.addColorStop(0, node.color);
+        glowGradient.addColorStop(0.5, `${node.color}60`);
+        glowGradient.addColorStop(1, 'rgba(0,0,0,0)');
         
-        ctx.fillStyle = gradient;
+        ctx.fillStyle = glowGradient;
+        ctx.arc(node.x, node.y, nodeRadius * 3, 0, Math.PI * 2);
         ctx.fill();
         
-        // Draw node labels
-        ctx.font = '10px Arial';
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        // Draw node
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, nodeRadius, 0, Math.PI * 2);
+        ctx.fillStyle = node.color;
+        ctx.fill();
+        
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, nodeRadius * 0.7, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        
+        // Draw node labels with background for better readability
+        ctx.font = node.type === 'central' ? 'bold 12px Arial' : '11px Arial';
         ctx.textAlign = 'center';
+        
+        const textY = node.y + nodeRadius + 18;
+        let textX = node.x;
         
         if (node.type === 'source') {
           ctx.textAlign = 'right';
-          ctx.fillText(node.name, node.x - nodeRadius - 5, node.y + 4);
+          textX = node.x - nodeRadius - 10;
         } else if (node.type === 'demand') {
           ctx.textAlign = 'left';
-          ctx.fillText(node.name, node.x + nodeRadius + 5, node.y + 4);
-        } else {
-          ctx.fillText(node.name, node.x, node.y + nodeRadius + 15);
+          textX = node.x + nodeRadius + 10;
         }
+        
+        // Text background for better readability
+        const textWidth = ctx.measureText(node.name).width;
+        const textPadding = 4;
+        const textHeight = 16;
+        
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        if (node.type === 'source') {
+          ctx.fillRect(
+            textX - textWidth - textPadding, 
+            textY - textHeight + textPadding, 
+            textWidth + textPadding * 2, 
+            textHeight
+          );
+        } else if (node.type === 'demand') {
+          ctx.fillRect(
+            textX - textPadding, 
+            textY - textHeight + textPadding, 
+            textWidth + textPadding * 2, 
+            textHeight
+          );
+        } else {
+          ctx.fillRect(
+            textX - textWidth / 2 - textPadding, 
+            textY - textHeight + textPadding, 
+            textWidth + textPadding * 2, 
+            textHeight
+          );
+        }
+        
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.fillText(node.name, textX, textY);
       });
       
-      // Randomly create new data packets
-      if (Math.random() < 0.05) {
+      // Randomly create new data packets (with lowered frequency)
+      if (Math.random() < 0.03) {
         // Determine random source and target
         const sources = nodes.filter(n => n.type === 'source');
         const demands = nodes.filter(n => n.type === 'demand');
@@ -169,9 +258,10 @@ const ConnectivityMap = () => {
                 y: demand.y
               },
               color: source.color,
-              speed: 0.03 + Math.random() * 0.02,
+              speed: 0.02 + Math.random() * 0.01,
               progress: 0,
-              size: 3 + Math.random() * 2
+              size: 2 + Math.random() * 2,
+              tail: []  // Array to store previous positions for trail effect
             });
           } else {
             const demand = demands[Math.floor(Math.random() * demands.length)];
@@ -188,9 +278,10 @@ const ConnectivityMap = () => {
                 y: source.y
               },
               color: demand.color,
-              speed: 0.03 + Math.random() * 0.02,
+              speed: 0.02 + Math.random() * 0.01,
               progress: 0,
-              size: 3 + Math.random() * 2
+              size: 2 + Math.random() * 2,
+              tail: []  // Array to store previous positions for trail effect
             });
           }
         }
@@ -203,12 +294,22 @@ const ConnectivityMap = () => {
         // Calculate position based on progress
         packet.progress += packet.speed;
         
+        // Save previous position
+        const prevX = packet.x;
+        const prevY = packet.y;
+        
         // Interpolate position
-        packet.x = packet.x + (packet.targetX - packet.x) * packet.speed;
-        packet.y = packet.y + (packet.targetY - packet.y) * packet.speed;
+        packet.x = packet.x + (packet.targetX - packet.x) * packet.speed * 2;
+        packet.y = packet.y + (packet.targetY - packet.y) * packet.speed * 2;
+        
+        // Update tail with current position (limit to 10 positions)
+        packet.tail.push({ x: prevX, y: prevY });
+        if (packet.tail.length > 10) {
+          packet.tail.shift();
+        }
         
         // Check if packet reached central node
-        if (packet.progress >= 0.9 && packet.nextTarget) {
+        if (packet.progress >= 0.95 && packet.nextTarget) {
           // Switch to next target
           packet.x = packet.targetX;
           packet.y = packet.targetY;
@@ -216,12 +317,39 @@ const ConnectivityMap = () => {
           packet.targetY = packet.nextTarget.y;
           packet.nextTarget = null;
           packet.progress = 0;
+          packet.tail = []; // Reset tail for new journey
+        }
+        
+        // Draw packet trail (fading tail)
+        if (packet.tail.length > 1) {
+          for (let i = 0; i < packet.tail.length - 1; i++) {
+            const alpha = i / packet.tail.length;
+            ctx.beginPath();
+            ctx.moveTo(packet.tail[i].x, packet.tail[i].y);
+            ctx.lineTo(packet.tail[i+1].x, packet.tail[i+1].y);
+            ctx.strokeStyle = `${packet.color}${Math.floor(alpha * 255).toString(16).padStart(2, '0')}`;
+            ctx.lineWidth = packet.size * alpha;
+            ctx.stroke();
+          }
+          
+          // Connect last tail point to current position
+          const lastIndex = packet.tail.length - 1;
+          if (lastIndex >= 0) {
+            ctx.beginPath();
+            ctx.moveTo(packet.tail[lastIndex].x, packet.tail[lastIndex].y);
+            ctx.lineTo(packet.x, packet.y);
+            ctx.strokeStyle = packet.color;
+            ctx.lineWidth = packet.size * 0.8;
+            ctx.stroke();
+          }
         }
         
         // Draw the packet
         ctx.beginPath();
         ctx.arc(packet.x, packet.y, packet.size, 0, Math.PI * 2);
         ctx.fillStyle = packet.color;
+        
+        // Add glow effect to packet
         ctx.shadowColor = packet.color;
         ctx.shadowBlur = 10;
         ctx.fill();
